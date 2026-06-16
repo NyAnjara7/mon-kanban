@@ -17,26 +17,49 @@ const STATUS_LABELS = {
 export default function TaskCard({ task, onDelete }) { 
   const priority = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.low; 
   const status   = STATUS_LABELS[task.status]     || STATUS_LABELS.todo; 
- // Formater la date d'échéance 
+
+  // Formater la date d'échéance 
   const dueLabel = task.due_date 
     ? new Date(task.due_date).toLocaleDateString('fr-FR', { 
         day: '2-digit', month: 'short', year: 'numeric' 
       }) 
     : null;
+
   // Vérifier si la tâche est en retard 
   const isOverdue = task.due_date && 
     new Date(task.due_date) < new Date() && 
     task.status !== 'done'; 
+
+  // ==========================================
+  // NOUVEAUTÉ : FONCTION AU DÉBUT DU GLISSEMENT
+  // ==========================================
+  const handleDragStart = (e) => {
+    // On enregistre l'ID de la tâche en texte brut dans l'événement de glissement
+    e.dataTransfer.setData('text/plain', task.id);
+  };
+
   return ( 
-    <div style={{ 
-      background: priority.bg, 
-      border: `2px solid ${priority.border}`, 
-      borderRadius: '10px', 
-      padding: '1rem', 
-      marginBottom: '0.75rem', 
-      boxShadow: '0 2px 6px rgba(0,0,0,0.07)', 
-      transition: 'transform 0.15s', 
-    }}> 
+    <div 
+      // ==========================================
+      // AJOUTS ICI POUR ACTIVER LE DRAG & DROP HTML5
+      // ==========================================
+      draggable={true} // Rend la carte déplaçable au clic maintenu
+      onDragStart={handleDragStart} // Appelle notre fonction au démarrage du glissement
+      
+      style={{ 
+        background: priority.bg, 
+        border: `2px solid ${priority.border}`, 
+        borderRadius: '10px', 
+        padding: '1rem', 
+        marginBottom: '0.75rem', 
+        boxShadow: '0 2px 6px rgba(0,0,0,0.07)', 
+        transition: 'transform 0.15s, box-shadow 0.15s', 
+        cursor: 'grab', // Change le curseur de la souris en "petite main" pour signifier qu'on peut l'attraper
+      }}
+      // Petit effet visuel optionnel : change le curseur quand on serre le poing pour déplacer
+      onMouseDown={(e) => e.currentTarget.style.cursor = 'grabbing'}
+      onMouseUp={(e) => e.currentTarget.style.cursor = 'grab'}
+    > 
       {/* En-tête : titre + bouton supprimer */} 
       <div style={{ display: 'flex', justifyContent: 'space-between', 
                     alignItems: 'flex-start', gap: '0.5rem' }}> 
@@ -46,9 +69,10 @@ export default function TaskCard({ task, onDelete }) {
         <button onClick={() => onDelete(task.id)} 
           style={{ background: 'none', border: 'none', cursor: 'pointer', 
                    color: '#94A3B8', fontSize: '1.1rem', padding: '0' }}> 
-✕
+          ✕
         </button> 
       </div> 
+
       {/* Description */} 
       {task.description && ( 
         <p style={{ margin: '0.5rem 0', color: '#64748B', 
@@ -56,6 +80,7 @@ export default function TaskCard({ task, onDelete }) {
           {task.description} 
         </p> 
       )}
+
       {/* Badges */} 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', 
                     marginTop: '0.75rem', alignItems: 'center' }}> 
@@ -76,18 +101,15 @@ export default function TaskCard({ task, onDelete }) {
           <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', 
             borderRadius: '999px', background: task.categories.color + '33', 
             color: task.categories.color, fontWeight: 600 }}> 
-�
-� {task.categories.name} 
+            🏷️ {task.categories.name} 
           </span> 
         )} 
         {/* Date d'échéance */} 
         {dueLabel && ( 
           <span style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', 
-            borderRadius: '999px', background: isOverdue ? '#FEE2E2' : 
-'#F1F5F9', 
+            borderRadius: '999px', background: isOverdue ? '#FEE2E2' : '#F1F5F9', 
             color: isOverdue ? '#DC2626' : '#64748B', fontWeight: 600 }}> 
-�
-� {isOverdue ? '⚠ ' : ''}{dueLabel} 
+            📅 {isOverdue ? '⚠ ' : ''}{dueLabel} 
           </span> 
         )} 
       </div> 
