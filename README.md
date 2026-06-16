@@ -1,16 +1,29 @@
-# React + Vite
+# KanbanRT
+Un tableau de bord Kanban collaboratif permettant de gérer des tâches en temps réel grâce à Supabase et React.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Membres du binôme
+RAKOTONDRAMANANA Ny Anjara Tiana – Groupe A2
+AZZI Hala – Groupe A2
 
-Currently, two official plugins are available:
+# Stack Technique
+Frontend : React (Vite), React Router DOM
+Design & UI : Tailwind CSS
+Backend & Base de données : Supabase (Auth, PostgreSQL, Realtime)
+Déploiement : Vercel
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+# Installation et Lancement Local
+bash
+1. Cloner le dépôt GitHub
+git clone https://github.com/NyAnjara7/mon-kanban.git
 
-## React Compiler
+2. Naviguer dans le dossier du projet
+cd mon-kanban
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+3. Installer les dépendances
+npm install
 
-## Expanding the ESLint configuration
+4. Lancer le serveur de développement
+npm run dev
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# Lien vers l’application déployée
+https://mon-kanban-xi.vercel.app/
