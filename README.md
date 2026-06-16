@@ -13,16 +13,16 @@ Déploiement : Vercel
 
 # Installation et Lancement Local
 bash
-1. Cloner le dépôt GitHub
+1. Cloner le dépôt GitHub : 
 git clone https://github.com/NyAnjara7/mon-kanban.git
 
-2. Naviguer dans le dossier du projet
+2. Naviguer dans le dossier du projet : 
 cd mon-kanban
 
-3. Installer les dépendances
+3. Installer les dépendances : 
 npm install
 
-4. Lancer le serveur de développement
+4. Lancer le serveur de développement : 
 npm run dev
 
 # Lien vers l’application déployée
