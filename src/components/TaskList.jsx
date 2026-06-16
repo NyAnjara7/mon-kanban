@@ -4,7 +4,8 @@ import { supabase } from '../lib/supabase';
 import TaskCard from './TaskCard'; 
 import TaskForm from './TaskForm'; 
 
-export default function TaskList({ boardId }) { 
+/* MODIFICATION ICI : Récupération de la prop session */
+export default function TaskList({ boardId, session }) { 
   // États d'origine pour stocker les données et le chargement
   const [tasks, setTasks]   = useState([]); 
   const [loading, setLoading] = useState(true); 
@@ -98,7 +99,8 @@ export default function TaskList({ boardId }) {
       
       {/* Conteneur de formulaire stylisé blanc */}
       <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
-        <TaskForm boardId={boardId} onCreated={fetchTasks} /> 
+        {/* MODIFICATION ICI : Envoi final de la prop session au TaskForm */}
+        <TaskForm boardId={boardId} onCreated={fetchTasks} session={session} /> 
       </div>
 
       {/* Barre de Recherche et Filtres réactive (Tailwind CSS) */}

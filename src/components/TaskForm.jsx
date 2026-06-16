@@ -2,8 +2,9 @@
 import { useState, useEffect } from 'react'; 
 import { supabase } from '../lib/supabase'; 
 
-export default function TaskForm({ boardId, onCreated }) { 
-  const [title, setTitle]           = useState(''); 
+// Ajout de la prop session pour récupérer l'email de l'utilisateur connecté
+export default function TaskForm({ boardId, onCreated, session }) { 
+  const [title, setTitle]             = useState(''); 
   const [description, setDescription] = useState(''); 
   const [status, setStatus]         = useState('todo'); 
   const [priority, setPriority]     = useState('medium'); 
@@ -40,6 +41,31 @@ export default function TaskForm({ boardId, onCreated }) {
     
     setLoading(false); 
     if (error) { setError(error.message); return; } 
+    
+    // --- TON BLOC AJOUTÉ TEL QUEL APRÈS L'INSERTION SUPABASE RÉUSSIE ---
+    if (!error && dueDate) { 
+      const formattedDate = new Date(dueDate).toLocaleDateString('fr-FR', { 
+        day: '2-digit', month: 'long', year: 'numeric' 
+      }); 
+      await fetch('/api/send-email', { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify({ 
+          to: [session.user.email],   // envoyer au créateur de la tâche 
+          subject: `📋 Tâche créée : ${title}`, 
+          html: ` 
+            Tâche créée avec succès
+     
+            Titre : ${title}
+     
+            Priorité : ${priority}
+     
+            Échéance : ${formattedDate}
+     
+          `, 
+        }), 
+      }); 
+    }
     
     // Réinitialisation complète des champs du formulaire
     setTitle(''); setDescription(''); setStatus('todo'); 
@@ -82,7 +108,7 @@ export default function TaskForm({ boardId, onCreated }) {
         /> 
       </div>
 
-      {/* Grille responsive des attributs (4 colonnes de tailles égales sur PC, empilées sur Mobile) */} 
+      {/* Grille responsive des attributs */} 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"> 
         {/* Colonne Statut */}
         <div> 
@@ -149,7 +175,7 @@ export default function TaskForm({ boardId, onCreated }) {
         > 
           {loading ? (
             <>
-              <span className="w-3 height-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               Enregistrement...
             </>
           ) : 'Créer la tâche'} 

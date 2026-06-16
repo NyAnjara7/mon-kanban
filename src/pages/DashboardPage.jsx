@@ -38,6 +38,34 @@ export default function DashboardPage({ session }) {
       });
   }, []);
 
+  // --- TA FONCTION AJOUTÉE TELLE QUELLE ---
+  async function sendEmail() { 
+    const response = await fetch('/api/send-email', { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify({ 
+        to: ['destinataire@exemple.com'], 
+        subject: '📋 Nouvelle tâche KanbanRT', 
+        html: ` 
+          Nouvelle tâche assignée !
+   
+          La tâche Configurer Supabase vous a été 
+  assignée.
+   
+          Statut : À faire · Priorité : Haute
+   
+          Voir le tableau → 
+        ` 
+      }), 
+    }); 
+    const result = await response.json(); 
+    if (result.success) { 
+      console.log('E-mail envoyé ! ID :', result.id); 
+    } else { 
+      console.error('Erreur :', result.error); 
+    } 
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Barre de navigation globale */}
@@ -69,7 +97,8 @@ export default function DashboardPage({ session }) {
         {/* Vue conditionnelle : Onglet Tâches */}
         {tab === 'tasks' && (
           boardId ? (
-            <TaskList boardId={boardId} />
+            /* MODIFICATION ICI : Transmission de la session à TaskList */
+            <TaskList boardId={boardId} session={session} />
           ) : (
             <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 max-w-md mx-auto">
               <span className="text-3xl">📋</span>
