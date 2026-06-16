@@ -2,19 +2,18 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import UserTable from '../components/UserTable';
-import TaskList from '../components/TaskList'; // ✅ AJOUTÉ
+import TaskList from '../components/TaskList'; 
 import Navbar from '../components/Navbar'; 
 
 export default function DashboardPage({ session }) {
-
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // ✅ AJOUTÉS
   const [tab, setTab] = useState('tasks');
   const [boardId, setBoardId] = useState(null);
 
+  // Fonction de chargement des profils d'utilisateurs
   async function fetchUsers() {
+    setLoading(true);
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -24,12 +23,11 @@ export default function DashboardPage({ session }) {
     setLoading(false);
   }
 
-  // Chargement des utilisateurs
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  // ✅ AJOUTÉ : charger le premier board
+  // Chargement automatique du premier tableau (board) disponible
   useEffect(() => {
     supabase
       .from('boards')
@@ -40,26 +38,16 @@ export default function DashboardPage({ session }) {
       });
   }, []);
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-  }
-
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      {/* Barre de navigation globale */}
+      <Navbar session={session} /> 
 
-       <Navbar session={session} /> 
+      {/* Conteneur principal centré et limité en largeur */}
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
-      {/* ✅ MAIN REMPLACÉ */}
-      <main style={{ padding: '2rem' }}>
-
-        {/* Navigation onglets */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '0.5rem',
-            marginBottom: '1.5rem'
-          }}
-        >
+        {/* Barre d'onglets de navigation interne */}
+        <div className="flex gap-2 p-1 bg-slate-200/70 rounded-xl w-fit shadow-inner">
           {[
             ['tasks', '🗂 Tâches'],
             ['users', '👥 Utilisateurs']
@@ -67,37 +55,41 @@ export default function DashboardPage({ session }) {
             <button
               key={key}
               onClick={() => setTab(key)}
-              style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '6px',
-                border: 'none',
-                cursor: 'pointer',
-                background: tab === key ? '#1A8C82' : '#E2E8F0',
-                color: tab === key ? 'white' : '#1E293B',
-                fontWeight: tab === key ? 700 : 400,
-              }}
+              className={`px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                tab === key 
+                  ? 'bg-[#1A8C82] text-white shadow-md' 
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-300/40'
+              }`}
             >
               {label}
             </button>
           ))}
         </div>
 
-        {/* Onglet tâches */}
-        {tab === 'tasks' && boardId && (
-          <TaskList boardId={boardId} />
+        {/* Vue conditionnelle : Onglet Tâches */}
+        {tab === 'tasks' && (
+          boardId ? (
+            <TaskList boardId={boardId} />
+          ) : (
+            <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 max-w-md mx-auto">
+              <span className="text-3xl">📋</span>
+              <h3 className="mt-4 font-bold text-slate-800">Aucun tableau détecté</h3>
+              <p className="mt-2 text-xs text-slate-500 leading-relaxed">
+                Veuillez instancier une ligne dans la table <code className="bg-slate-100 text-pink-600 px-1 py-0.5 rounded text-[11px]">boards</code> via le SQL Editor de Supabase pour initialiser l'espace.
+              </p>
+            </div>
+          )
         )}
 
-        {tab === 'tasks' && !boardId && (
-          <p style={{ color: '#94A3B8' }}>
-            Aucun tableau trouvé. Créez-en un via SQL Editor.
-          </p>
-        )}
-
-        {/* Onglet utilisateurs */}
+        {/* Vue conditionnelle : Onglet Utilisateurs */}
         {tab === 'users' && (
-          loading
-            ? <p>Chargement...</p>
-            : <UserTable users={users} onRefresh={fetchUsers} />
+          loading ? (
+            <div className="text-center py-12 text-slate-500 font-medium animate-pulse">
+              Chargement des profils en cours...
+            </div>
+          ) : (
+            <UserTable users={users} onRefresh={fetchUsers} />
+          )
         )}
 
       </main>

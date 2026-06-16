@@ -6,25 +6,21 @@ import Navbar from '../components/Navbar';
 export default function ProfilePage({ session }) {
   const user = session.user;
 
-  // ── États infos générales ─────────────────────
-  const [fullName, setFullName] = useState(
-    user.user_metadata?.full_name || ''
-  );
+  // États pour les informations de profil
+  const [fullName, setFullName] = useState(user.user_metadata?.full_name || '');
   const [infoMsg, setInfoMsg] = useState('');
   const [infoErr, setInfoErr] = useState('');
 
-  // ── États mot de passe ────────────────────────
+  // États pour le changement de mot de passe
   const [newPass, setNewPass] = useState('');
   const [passMsg, setPassMsg] = useState('');
   const [passErr, setPassErr] = useState('');
 
-  // ── Avatar ────────────────────────────────────
-  const [avatarUrl, setAvatarUrl] = useState(
-    user.user_metadata?.avatar_url || ''
-  );
+  // États pour la gestion de l'avatar photo
+  const [avatarUrl, setAvatarUrl] = useState(user.user_metadata?.avatar_url || '');
   const [uploading, setUploading] = useState(false);
 
-  // ── Sauvegarder nom ───────────────────────────
+  // Sauvegarde du nom complet dans les metadata d'authentification
   async function handleSaveInfo(e) {
     e.preventDefault();
     setInfoErr('');
@@ -38,7 +34,7 @@ export default function ProfilePage({ session }) {
     else setInfoMsg('✅ Profil mis à jour !');
   }
 
-  // ── Changer mot de passe ──────────────────────
+  // Mise à jour sécurisée du mot de passe
   async function handleChangePassword(e) {
     e.preventDefault();
     setPassErr('');
@@ -60,7 +56,7 @@ export default function ProfilePage({ session }) {
     }
   }
 
-  // ── Upload avatar ─────────────────────────────
+  // Téléversement d'image vers le bucket 'avatars' de Supabase Storage
   async function handleAvatarUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -94,47 +90,33 @@ export default function ProfilePage({ session }) {
     setUploading(false);
   }
 
-  // ── UI (fusion du style 2 + structure React propre) ──
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <Navbar session={session} />
 
-      <main
-        style={{
-          maxWidth: '600px',
-          margin: '2rem auto',
-          padding: '0 1rem'
-        }}
-      >
-        <h1 style={{ marginBottom: '2rem' }}>Mon profil</h1>
+      <main className="flex-1 max-w-xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+        
+        {/* Titre principal */}
+        <div>
+          <h1 className="text-xl font-bold text-slate-800">Mon profil</h1>
+          <p className="text-xs text-slate-500">Gérez vos informations personnelles et la sécurité de votre compte.</p>
+        </div>
 
-        {/* ── AVATAR ── */}
-        <section style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div
-            style={{
-              width: 96,
-              height: 96,
-              borderRadius: '50%',
-              overflow: 'hidden',
-              margin: '0 auto 1rem',
-              background: '#CBD5E1',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
+        {/* SECTION 1 : AVATAR / PHOTO DE PROFIL */}
+        <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center justify-center space-y-3">
+          <div className="w-24 h-24 rounded-full overflow-hidden bg-slate-200 border-2 border-slate-300 shadow-inner flex items-center justify-center relative group">
             {avatarUrl ? (
               <img
                 src={avatarUrl}
                 alt="avatar"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                className="w-full h-full object-cover"
               />
             ) : (
-              <span>👤</span>
+              <span className="text-3xl text-slate-400">👤</span>
             )}
           </div>
 
-          <label style={{ cursor: 'pointer', color: '#1A8C82' }}>
+          <label className={`text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-300 bg-slate-50 hover:bg-slate-100 text-slate-700 cursor-pointer shadow-sm transition-all ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
             {uploading ? 'Envoi en cours...' : 'Changer la photo'}
             <input
               type="file"
@@ -146,99 +128,68 @@ export default function ProfilePage({ session }) {
           </label>
         </section>
 
-        {/* ── INFOS PROFIL ── */}
-        <section
-          style={{
-            background: '#fff',
-            borderRadius: 12,
-            padding: 20,
-            marginBottom: 20,
-            boxShadow: '0 1px 4px rgba(0,0,0,0.07)'
-          }}
-        >
-          <h2>Informations générales</h2>
-          <p style={{ color: '#64748B' }}>Email : {user.email}</p>
+        {/* SECTION 2 : INFORMATIONS GÉNÉRALES */}
+        <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <h2 className="text-sm font-bold text-slate-800 pb-1.5 border-b border-slate-100">Informations générales</h2>
+          
+          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200/60">
+            <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wide">Adresse e-mail (Non modifiable)</span>
+            <span className="text-xs font-semibold text-slate-700">{user.email}</span>
+          </div>
 
-          <form onSubmit={handleSaveInfo}>
-            <label>Nom complet</label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              style={{
-                width: '100%',
-                padding: 10,
-                border: '1px solid #CBD5E1',
-                borderRadius: 8,
-                marginTop: 8,
-                marginBottom: 10
-              }}
-            />
+          <form onSubmit={handleSaveInfo} className="space-y-3">
+            <div>
+              <label className="block text-[11px] font-bold text-slate-500 mb-1">Nom complet</label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1A8C82] transition-all"
+              />
+            </div>
 
-            {infoErr && <p style={{ color: 'red' }}>{infoErr}</p>}
-            {infoMsg && <p style={{ color: 'green' }}>{infoMsg}</p>}
+            {/* Notifications retour d'information */}
+            {infoErr && <p className="text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-100">{infoErr}</p>}
+            {infoMsg && <p className="text-xs font-semibold text-emerald-600 bg-emerald-50 p-2.5 rounded-lg border border-emerald-100">{infoMsg}</p>}
 
             <button
               type="submit"
-              style={{
-                background: '#1A8C82',
-                color: '#fff',
-                border: 'none',
-                padding: '10px 15px',
-                borderRadius: 8,
-                cursor: 'pointer'
-              }}
+              className="bg-[#1A8C82] hover:bg-[#146e66] text-white text-xs font-bold py-2 px-4 rounded-lg transition-all shadow-sm active:scale-95 cursor-pointer"
             >
               Sauvegarder
             </button>
           </form>
         </section>
 
-        {/* ── MOT DE PASSE ── */}
-        <section
-          style={{
-            background: '#fff',
-            borderRadius: 12,
-            padding: 20,
-            boxShadow: '0 1px 4px rgba(0,0,0,0.07)'
-          }}
-        >
-          <h2>Changer le mot de passe</h2>
+        {/* SECTION 3 : SÉCURITÉ / MOT DE PASSE */}
+        <section className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <h2 className="text-sm font-bold text-slate-800 pb-1.5 border-b border-slate-100">Changer le mot de passe</h2>
 
-          <form onSubmit={handleChangePassword}>
-            <input
-              type="password"
-              value={newPass}
-              onChange={(e) => setNewPass(e.target.value)}
-              placeholder="6 caractères minimum"
-              style={{
-                width: '100%',
-                padding: 10,
-                border: '1px solid #CBD5E1',
-                borderRadius: 8,
-                marginTop: 10,
-                marginBottom: 10
-              }}
-            />
+          <form onSubmit={handleChangePassword} className="space-y-3">
+            <div>
+              <label className="block text-[11px] font-bold text-slate-500 mb-1">Nouveau mot de passe</label>
+              <input
+                type="password"
+                value={newPass}
+                onChange={(e) => setNewPass(e.target.value)}
+                placeholder="6 caractères minimum"
+                className="w-full px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#1A8C82] transition-all"
+              />
+            </div>
 
-            {passErr && <p style={{ color: 'red' }}>{passErr}</p>}
-            {passMsg && <p style={{ color: 'green' }}>{passMsg}</p>}
+            {/* Notifications retour de sécurité */}
+            {passErr && <p className="text-xs font-semibold text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-100">{passErr}</p>}
+            {passMsg && <p className="text-xs font-semibold text-emerald-600 bg-emerald-50 p-2.5 rounded-lg border border-emerald-100">{passMsg}</p>}
 
             <button
               type="submit"
-              style={{
-                background: '#1A8C82',
-                color: '#fff',
-                border: 'none',
-                padding: '10px 15px',
-                borderRadius: 8,
-                cursor: 'pointer'
-              }}
+              className="bg-[#1A8C82] hover:bg-[#146e66] text-white text-xs font-bold py-2 px-4 rounded-lg transition-all shadow-sm active:scale-95 cursor-pointer"
             >
               Mettre à jour
             </button>
           </form>
         </section>
+
       </main>
     </div>
   );
