@@ -37,8 +37,10 @@ export default function LoginPage() {
     }
 
     setLoading(true);
+    // Remplacez cette partie dans LoginPage.jsx
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'http://localhost:5173/update-password', // L'URL de redirection après le clic sur le mail
+      // Ajoutez ce paramètre pour forcer l'utilisation de '?' au lieu de '#'
+      redirectTo: 'http://localhost:5173/update-password?type=recovery',
     });
 
     if (error) {

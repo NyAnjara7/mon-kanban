@@ -1,6 +1,7 @@
-// src/components/TaskCard.jsx 
+// src/components/TaskCard.jsx
+import TaskComments from './TaskComments';
 
-// Dictionnaire des couleurs de priorité converti avec les classes Tailwind CSS (Bordure, fonds, texte)
+// Dictionnaire des couleurs de priorité converti avec les classes Tailwind CSS
 const PRIORITY_COLORS = { 
   high:   { bg: 'bg-red-50/90', border: 'border-red-500', text: 'text-red-700', label: '🔴 Haute' }, 
   medium: { bg: 'bg-amber-50/90', border: 'border-amber-500', text: 'text-amber-700', label: '🟡 Moyenne' }, 
@@ -16,9 +17,8 @@ const STATUS_LABELS = {
 };
 
 export default function TaskCard({ task, onDelete }) { 
-  // Récupération ou repli par défaut pour les configurations visuelles
   const priority = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.low; 
-  const status   = STATUS_LABELS[task.status]     || STATUS_LABELS.todo; 
+  const status   = STATUS_LABELS[task.status]    || STATUS_LABELS.todo; 
 
   // Formater proprement la date d'échéance reçue
   const dueLabel = task.due_date 
@@ -27,27 +27,22 @@ export default function TaskCard({ task, onDelete }) {
       }) 
     : null;
 
-  // Calcul booléen pour évaluer si le ticket est hors-délais (et pas encore terminé)
+  // Calcul booléen pour évaluer si le ticket est hors-délais
   const isOverdue = task.due_date && 
     new Date(task.due_date) < new Date() && 
     task.status !== 'done'; 
 
-  // Prise en charge initiale du glisser-déposer (HTML5 Drag & Drop)
   const handleDragStart = (e) => {
-    // Stockage crypté/sécurisé de l'identifiant système unique de la tâche
     e.dataTransfer.setData('text/plain', task.id);
   };
 
   return ( 
     <div 
-      // Attributs natifs injectés pour rendre l'interface mécanique et déplaçable
       draggable={true} 
       onDragStart={handleDragStart} 
-      
-      // Classes Tailwind : Design moderne avec bordure gauche de couleur, coins arrondis, ombres au survol et curseur adapté
       className={`p-4 rounded-xl border-l-4 border-y border-r border-slate-200 bg-white shadow-sm hover:shadow-md transition-all duration-200 cursor-grab active:cursor-grabbing transform hover:-translate-y-0.5 ${priority.border}`}
     > 
-      {/* En-tête de carte : Titre de l'activité + Bouton de suppression croisé */} 
+      {/* En-tête de carte */} 
       <div className="flex justify-between items-start gap-3"> 
         <h4 className="font-semibold text-sm text-slate-800 leading-snug"> 
           {task.title} 
@@ -60,22 +55,19 @@ export default function TaskCard({ task, onDelete }) {
         </button> 
       </div> 
 
-      {/* Affichage conditionnel de la description (limité à 3 lignes maximum si trop longue) */} 
+      {/* Description */} 
       {task.description && ( 
         <p className="mt-1.5 text-xs text-slate-500 line-clamp-3 leading-relaxed"> 
           {task.description} 
         </p> 
       )}
 
-      {/* Section basse regroupant les micro-badges d'informations */} 
+      {/* Section badges */} 
       <div className="flex flex-wrap gap-1.5 mt-3 pt-2.5 border-t border-slate-100 items-center"> 
-        
-        {/* Badge Priorité coloré dynamiquement via Tailwind */}
         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${priority.bg} ${priority.text}`}> 
           {priority.label} 
         </span> 
 
-        {/* Badge de Catégorie personnalisable via la base de données (couleur inline sécurisée) */} 
         {task.categories && ( 
           <span 
             className="text-[10px] font-bold px-2 py-0.5 rounded-full"
@@ -88,7 +80,6 @@ export default function TaskCard({ task, onDelete }) {
           </span> 
         )} 
 
-        {/* Badge d'échéance : Clignote doucement en rouge (animate-pulse) si la date est dépassée */} 
         {dueLabel && ( 
           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm ${
             isOverdue ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-slate-100 text-slate-600'
@@ -96,7 +87,12 @@ export default function TaskCard({ task, onDelete }) {
             📅 {isOverdue ? '⚠ En retard ' : ''}{dueLabel} 
           </span> 
         )} 
-      </div> 
+      </div>
+
+      {/* Section Commentaires */}
+      <div className="mt-4 pt-3 border-t border-slate-100">
+        <TaskComments taskId={task.id} />
+      </div>
     </div> 
   );
 }
