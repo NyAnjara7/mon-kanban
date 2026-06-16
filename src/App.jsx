@@ -5,6 +5,7 @@ import { supabase } from './lib/supabase';
 import LoginPage from './pages/LoginPage'; 
 import DashboardPage from './pages/DashboardPage'; 
 import ProfilePage from './pages/ProfilePage'; 
+import UpdatePasswordPage from './pages/UpdatePasswordPage';
  
 
 function App() { 
@@ -38,6 +39,7 @@ to='/login' />} />
         <Route path='/profile' 
   element={session ? <ProfilePage session={session} /> : <Navigate to='/
 login' />} />
+        <Route path="/update-password" element={<UpdatePasswordPage />} />
       </Routes> 
     </BrowserRouter> 
   ); 

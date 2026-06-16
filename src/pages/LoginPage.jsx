@@ -7,11 +7,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState(''); 
   const [isRegister, setIsRegister] = useState(false); 
   const [error, setError]       = useState(''); 
+  const [successMessage, setSuccessMessage] = useState(''); 
   const [loading, setLoading]   = useState(false); 
  
+  // --- SOUUMISSION DU FORMULAIRE (CONNEXION / INSCRIPTION) ---
   async function handleSubmit(e) { 
     e.preventDefault(); 
     setError(''); 
+    setSuccessMessage('');
     setLoading(true); 
     let result; 
     if (isRegister) { 
@@ -22,6 +25,29 @@ export default function LoginPage() {
     if (result.error) setError(result.error.message); 
     setLoading(false); 
   } 
+
+  // --- FONCTION POUR LE MOT DE PASSE OUBLIÉ ---
+  async function handleForgotPassword() {
+    setError('');
+    setSuccessMessage('');
+
+    if (!email) {
+      setError("Veuillez saisir votre adresse e-mail dans le champ ci-dessus pour pouvoir réinitialiser votre mot de passe.");
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: 'http://localhost:5173/update-password', // L'URL de redirection après le clic sur le mail
+    });
+
+    if (error) {
+      setError(error.message);
+    } else {
+      setSuccessMessage("📩 Un e-mail de réinitialisation a été envoyé ! Vérifiez votre boîte de réception.");
+    }
+    setLoading(false);
+  }
  
   return ( 
     <div className="min-h-screen flex items-center justify-center bg-[#0F172A] p-4"> 
@@ -45,6 +71,13 @@ export default function LoginPage() {
           </div>
         )} 
 
+        {/* Alerte de succès */}
+        {successMessage && (
+          <div className="p-3 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-100 leading-snug">
+            {successMessage}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4"> 
           {/* Champ E-mail */}
           <div>
@@ -67,10 +100,25 @@ export default function LoginPage() {
               placeholder="••••••••" 
               value={password} 
               onChange={e => setPassword(e.target.value)} 
-              required 
+              required={!isRegister} // Non requis si on veut juste faire "Mot de passe oublié"
               className="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#1A8C82] focus:border-[#1A8C82] focus:bg-white transition-all" 
             /> 
-            {isRegister && <span className="text-[10px] text-slate-400 mt-1 block">6 caractères minimum requis.</span>}
+            
+            {/* Affichage conditionnel des indications sous le mot de passe */}
+            {isRegister ? (
+              <span className="text-[10px] text-slate-400 mt-1 block">6 caractères minimum requis.</span>
+            ) : (
+              <div className="text-right mt-1.5">
+                <button
+                  type="button"
+                  onClick={handleForgotPassword}
+                  disabled={loading}
+                  className="text-[11px] font-bold text-[#1A8C82] hover:text-[#146e66] transition-colors hover:underline focus:outline-none disabled:text-slate-400 cursor-pointer"
+                >
+                  Mot de passe oublié ?
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Bouton de soumission */}
@@ -89,7 +137,7 @@ export default function LoginPage() {
         <div className="text-center pt-2">
           <p 
             className="text-xs font-semibold text-[#1A8C82] hover:text-[#146e66] transition-colors cursor-pointer inline-block underline underline-offset-4" 
-            onClick={() => { setError(''); setIsRegister(!isRegister); }}
+            onClick={() => { setError(''); setSuccessMessage(''); setIsRegister(!isRegister); }}
           > 
             {isRegister ? 'Déjà un compte ? Connectez-vous' : "Pas de compte ? S'inscrire"} 
           </p> 
